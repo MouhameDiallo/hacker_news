@@ -1,3 +1,4 @@
+import 'package:hacker_news/utils/utils.dart';
 import 'package:intl/intl.dart';
 
 class Comment {
@@ -13,7 +14,7 @@ class Comment {
     id = jsonData["id"];
     parent = jsonData["parent"];
     author = jsonData["by"]?? '';
-    text = jsonData["text"]?? '';
+    text = formatText(jsonData["text"]?? '');
     time = DateFormat('dd/MM/yyyy hh:mm')
         .format(DateTime.fromMillisecondsSinceEpoch( jsonData["time"]* 1000));
     comments = jsonData['kids'];

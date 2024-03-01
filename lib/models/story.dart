@@ -1,4 +1,14 @@
+import 'package:hacker_news/utils/utils.dart';
 import 'package:intl/intl.dart';
+
+const String columnId = '_id';
+const String columnTitle = 'title';
+const String columnTime = 'time';
+const String columnUrl = 'url';
+const String columnScore = 'score';
+const String columnAuthor = 'author';
+const String columnFav = 'fav';
+
 
 class Story {
   late int id;
@@ -13,7 +23,7 @@ class Story {
   Story.fromJson(Map<String, dynamic> jsonData){
     id = jsonData["id"];
     author = jsonData["by"];
-    title = jsonData["title"]??'';
+    title = formatText(jsonData["title"]??'');
     url = jsonData["url"];
     time = DateFormat('dd/MM/yyyy hh:mm')
         .format(DateTime.fromMillisecondsSinceEpoch( jsonData["time"]* 1000));
@@ -21,4 +31,29 @@ class Story {
     comments = jsonData['kids'];
     isFavorite = false;
   }
+
+  Story.fromMap(Map<String, Object?> map) {
+    id = map[columnId]as int;
+    title = map[columnTitle] as String;
+    time = map[columnTime] as String;
+    author = map[columnAuthor] as String;
+    score = map[columnScore] as int;
+    url = map[columnUrl]==null? '':map[columnUrl] as String;
+    isFavorite = map[columnFav]==null? false: map[columnFav] as int ==1;
+    print("From map : $id, $title, $time, $author, $isFavorite");
+  }
+
+  Map<String, Object?> toMap() {
+    var map = <String, Object?>{
+      columnTitle: title,
+      columnTime: time,
+      columnAuthor: author,
+      columnUrl: url,
+      columnScore: score,
+      columnFav: isFavorite?1:0
+    };
+    map[columnId] = id;
+      return map;
+  }
+
 }

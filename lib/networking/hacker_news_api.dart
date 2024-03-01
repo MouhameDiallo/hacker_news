@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:hacker_news/utils/database/database_helper.dart';
 import 'package:http/http.dart' as http;
 import '../models/comment.dart';
 import '../models/story.dart';
@@ -20,7 +21,7 @@ class HackerNewsApi {
       for(String element in returnStringList){
         returnIntList.add(int.parse(element));
       }
-      return returnIntList.sublist(0,50);
+      return returnIntList.sublist(0,20);
     }
     on TimeoutException{
       print('Time out Exception my boy');
@@ -57,12 +58,21 @@ class HackerNewsApi {
     return null ;
   }
 
-  static Future<List<Story>> fetchStories(List<int> indexes) async{
+  static Future<List<Story>> fetchStories(List<int> indexes, DatabaseHelper db) async{
     List<Story> stories = [];
+    List<int> list = await db.getAllIds();
+
     try{
       for (int index in indexes){
-        print('Waiting a story');
-        Story? story = await fetchAStory(index);
+
+        Story? story;
+        if(list.contains(index)){
+          story = await db.getAllStories(index);
+        }
+        else{
+          story = await fetchAStory(index);
+          await db.insertStories(story!);
+        }
         if(story!=null){
           stories.add(story);
         }

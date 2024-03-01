@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hacker_news/networking/hacker_news_api.dart';
+import 'package:hacker_news/utils/database/database_helper.dart';
 import 'package:hacker_news/utils/providers/story_provider.dart';
 import 'package:hacker_news/widgets/news_tile.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,9 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DatabaseHelper db = DatabaseHelper();
+    db.init();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hacker News'),
@@ -38,8 +42,9 @@ class Home extends StatelessWidget {
                           );
                         } else {
                           List<int> indexes = snapshot.data!;
+
                           return FutureBuilder(
-                              future: HackerNewsApi.fetchStories(indexes),
+                              future: HackerNewsApi.fetchStories(indexes,db),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   return Consumer<StoryProvider>(
@@ -49,6 +54,7 @@ class Home extends StatelessWidget {
                                         itemCount: value.stories.length,
                                         itemBuilder: (BuildContext context,
                                             int position) {
+
                                           return NewsTile(
                                             story: value.stories[position],
                                             position: position,
