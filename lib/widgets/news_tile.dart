@@ -41,8 +41,8 @@ class NewsTile extends StatelessWidget {
                   DatabaseHelper db = DatabaseHelper();
                   await db.init();
                   db.isInDatabase(story.id).then((value) => value?-1:db.insertStories(story));
+                  db.update(story);
                 }
-
               },
               icon: story.isFavorite? const Icon(Icons.star): const Icon(Icons.star_border),
             ),

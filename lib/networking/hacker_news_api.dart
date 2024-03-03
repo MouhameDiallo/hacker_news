@@ -21,7 +21,7 @@ class HackerNewsApi {
       for(String element in returnStringList){
         returnIntList.add(int.parse(element));
       }
-      return returnIntList.sublist(0,50);
+      return returnIntList.sublist(0,75);
     }
     on TimeoutException{
       print('Time out Exception my boy');

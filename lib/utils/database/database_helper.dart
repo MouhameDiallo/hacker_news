@@ -13,6 +13,7 @@ const String columnUrl = 'url';
 const String columnScore = 'score';
 const String columnAuthor = 'author';
 const String tableHackerNews = 'hnTable';
+const String columnFav = 'fav';
 
 class DatabaseHelper {
   late Database db;
@@ -42,6 +43,7 @@ class DatabaseHelper {
   Future<int> insertStories(Story story) async {
     //faire un tour sur FlushBar
     // return await db.insert(NomTable,enregistrement)
+    print('${story.id} isFavorite: ${story.isFavorite}');
     return await db.insert(tableHackerNews, story.toMap());
   }
 
@@ -54,7 +56,8 @@ class DatabaseHelper {
           columnAuthor,
           columnScore,
           columnUrl,
-          columnTime
+          columnTime,
+          columnFav
         ],
         where: '$columnId = ?',
         whereArgs: [id]);
@@ -69,7 +72,7 @@ class DatabaseHelper {
     List<int> list =[];
     for (var x in mapList){
       int value = x[columnId] ;
-      print('From map list: $value');
+      //print('From map list: $value');
       list.add(value);
     }
     return list;
@@ -103,4 +106,11 @@ class DatabaseHelper {
       }
     }
   }
+
+  Future<int> update(Story story) async {
+    print(story.isFavorite);
+    return await db.update(tableHackerNews, story.toMap(),
+        where: '$columnId = ?', whereArgs: [story.id]);
+  }
+  Future close() async => db.close();
 }

@@ -39,8 +39,7 @@ class Story {
     author = map[columnAuthor] as String;
     score = map[columnScore] as int;
     url = map[columnUrl]==null? '':map[columnUrl] as String;
-    isFavorite = map[columnFav]==null? false: map[columnFav] as int ==1;
-    print("From map : $id, $title, $time, $author, $isFavorite");
+    isFavorite = map[columnFav] as int ==1;
   }
 
   Map<String, Object?> toMap() {
