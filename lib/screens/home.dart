@@ -3,10 +3,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hacker_news/networking/hacker_news_api.dart';
 import 'package:hacker_news/utils/database/database_helper.dart';
 import 'package:hacker_news/utils/providers/story_provider.dart';
+import 'package:hacker_news/utils/utils.dart';
 import 'package:hacker_news/widgets/news_tile.dart';
 import 'package:provider/provider.dart';
-
-import '../models/story.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -42,7 +41,9 @@ class Home extends StatelessWidget {
                           );
                         } else {
                           List<int> indexes = snapshot.data!;
-
+                          if(isFirstDayOfMonth()){
+                            db.monthlyCleaning(indexes);
+                          }
                           return FutureBuilder(
                               future: HackerNewsApi.fetchStories(indexes,db),
                               builder: (context, snapshot) {

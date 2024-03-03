@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hacker_news/models/story.dart';
 import 'package:hacker_news/screens/story_detailed.dart';
+import 'package:hacker_news/utils/database/database_helper.dart';
 import 'package:hacker_news/utils/providers/story_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -30,10 +31,18 @@ class NewsTile extends StatelessWidget {
             title: Text(story.title),
             subtitle: Text(story.time),
             trailing: IconButton(
-              onPressed: () {
+              onPressed: () async {
                 final itemProvider =
                     Provider.of<StoryProvider>(context, listen: false);
                 itemProvider.updateFavorites(position);
+
+                //Si la story n'est pas sauvegardee, faut sauvegarder dans la base
+                if(story.isFavorite){
+                  DatabaseHelper db = DatabaseHelper();
+                  await db.init();
+                  db.isInDatabase(story.id).then((value) => value?-1:db.insertStories(story));
+                }
+
               },
               icon: story.isFavorite? const Icon(Icons.star): const Icon(Icons.star_border),
             ),

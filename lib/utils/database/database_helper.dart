@@ -17,7 +17,7 @@ const String tableHackerNews = 'hnTable';
 class DatabaseHelper {
   late Database db;
 
-  init() async {
+  Future<void>init() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String path = join(directory.path, "news_db");
     db = await openDatabase(path, version: 1, onCreate: _onCreate);
@@ -35,7 +35,7 @@ class DatabaseHelper {
       $columnFav int not null
       );
     ''';
-
+    print('Ok Creation');
     await db.execute(request);
   }
 
@@ -84,8 +84,23 @@ class DatabaseHelper {
     return listFromMap(maps);
   }
 
+  Future<bool> isInDatabase(int x)async{
+    return (await getAllIds()).contains(x);
+  }
+
   Future<int> delete(int id) async {
     return await db.delete(tableHackerNews, where: '$columnId = ?', whereArgs: [id]);
   }
 
+  void monthlyCleaning(List fetchedIndexes)async{
+    List<int> databaseIds = await getAllIds();
+    for(int i in databaseIds){
+      if(!fetchedIndexes.contains(i)){
+        Story? story = await getAllStories(i);
+        if(story!= null){
+          if (story.isFavorite==false) delete(i);
+        }
+      }
+    }
+  }
 }
