@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hacker_news/networking/hacker_news_api.dart';
@@ -7,6 +8,16 @@ import 'package:hacker_news/utils/utils.dart';
 import 'package:hacker_news/widgets/news_tile.dart';
 import 'package:provider/provider.dart';
 
+// pour verifier s'il y'a la connexion à internet
+Future<bool> hasDeviceInternet() async {
+  final connectivityResult = await Connectivity().checkConnectivity();
+  bool value = connectivityResult == ConnectivityResult.wifi ||
+      connectivityResult == ConnectivityResult.mobile;
+
+  print('value : $value');
+  return value;
+}
+
 class Home extends StatelessWidget {
   const Home({super.key});
 
@@ -14,6 +25,17 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     DatabaseHelper db = DatabaseHelper();
     db.init();
+
+    Future<List<int>> getStories()async{
+      await db.init();
+      final hasInternet = await hasDeviceInternet();
+      if(hasInternet){
+        return await HackerNewsApi.getTopStories();
+      }
+      else{
+        return await db.getAllIds();
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -31,7 +53,7 @@ class Home extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: FutureBuilder(
-                      future: HackerNewsApi.getTopStories(),
+                      future: getStories(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -41,11 +63,11 @@ class Home extends StatelessWidget {
                           );
                         } else {
                           List<int> indexes = snapshot.data!;
-                          if(isFirstDayOfMonth()){
+                          if (isFirstDayOfMonth()) {
                             db.monthlyCleaning(indexes);
                           }
                           return FutureBuilder(
-                              future: HackerNewsApi.fetchStories(indexes,db),
+                              future: HackerNewsApi.fetchStories(indexes, db),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
                                   return Consumer<StoryProvider>(
@@ -55,7 +77,6 @@ class Home extends StatelessWidget {
                                         itemCount: value.stories.length,
                                         itemBuilder: (BuildContext context,
                                             int position) {
-
                                           return NewsTile(
                                             story: value.stories[position],
                                             position: position,
