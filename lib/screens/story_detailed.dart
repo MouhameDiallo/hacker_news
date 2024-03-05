@@ -3,7 +3,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hacker_news/models/comment.dart';
 import 'package:hacker_news/models/story.dart';
 import 'package:hacker_news/networking/hacker_news_api.dart';
+import 'package:hacker_news/utils/providers/comment_provider.dart';
 import 'package:hacker_news/widgets/single_comment_widget.dart';
+import 'package:provider/provider.dart';
 
 class StoryDetailed extends StatelessWidget {
   final Story story;
@@ -17,7 +19,7 @@ class StoryDetailed extends StatelessWidget {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           child: Column(
             children: [
@@ -82,40 +84,76 @@ class StoryDetailed extends StatelessWidget {
               const SizedBox(
                 height: 15,
               ),
-              story.comments == null
-                  ? Container(
-                margin: const EdgeInsets.all(24.0),
-                child: const Center(
-                  child: Text("Aucun commentaire",
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.blueGrey,
-                    fontStyle: FontStyle.italic,
-                  ),),
+              ChangeNotifierProvider(
+                create: (BuildContext context) {
+                  return CommentProvider();
+                },
+                child: Consumer<CommentProvider>(
+                  builder: (BuildContext context, CommentProvider value, _) {
+
+                    print('Containing: ${value.comments}');
+                    print('Test: ${value.test}');
+                    return value.comments.isEmpty
+                        ? Container(
+                            margin: const EdgeInsets.all(24.0),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        final itemProvider =
+                                        Provider.of<CommentProvider>(context, listen: false);
+                                        itemProvider.loadComments(story.id);
+                                      },
+                                      child: const Text(
+                                          'Charger les commentaires'),
+                                    )
+                                  ],
+                                ),
+                                const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: 18.0),
+                                    child: Text(
+                                      "Aucun commentaire",
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        color: Colors.blueGrey,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : SizedBox(
+                            height: 220,
+                            child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: value.comments.length,
+                                itemBuilder: (context, position) {
+                                  return FutureBuilder(
+                                      future: HackerNewsApi.fetchAComment(
+                                          value.comments[position]),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          Comment comment = snapshot.data!;
+                                          return comment.text != ''
+                                              ? SingleComment(
+                                                  comment: snapshot.data!)
+                                              : Container();
+                                        } else {
+                                          return const SpinKitCubeGrid(
+                                            color: Colors.blueAccent,
+                                          );
+                                        }
+                                      });
+                                }),
+                          );
+                  },
                 ),
-              )
-                  : SizedBox(
-                      height: 220,
-                      child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: story.comments!.length,
-                          itemBuilder: (context, position) {
-                            return FutureBuilder(
-                                future: HackerNewsApi
-                                    .fetchAComment(story.comments![position]),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    Comment comment = snapshot.data!;
-                                    return comment.text!=''?SingleComment(
-                                        comment: snapshot.data!):Container();
-                                  } else {
-                                    return const SpinKitCubeGrid(
-                                      color: Colors.blueAccent,
-                                    );
-                                  }
-                                });
-                          }),
-                    ),
+              ),
             ],
           ),
         ),

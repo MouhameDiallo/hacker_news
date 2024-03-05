@@ -117,4 +117,13 @@ class HackerNewsApi {
     return null ;
   }
 
+  static Future<List> getComments(int id)async{
+    List comments =[];
+    Story? story = await fetchAStory(id);
+    if(story!=null && story.comments!=null){
+      comments = story.comments!;
+    }
+    return comments;
+  }
+
 }
