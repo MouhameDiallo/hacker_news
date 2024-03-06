@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:hacker_news/utils/database/database_helper.dart';
 import 'package:http/http.dart' as http;
+import '../database/database_helper.dart';
 import '../models/comment.dart';
 import '../models/story.dart';
 // Lien api: https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty

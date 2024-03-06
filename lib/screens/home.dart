@@ -1,103 +1,117 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:hacker_news/networking/hacker_news_api.dart';
-import 'package:hacker_news/utils/database/database_helper.dart';
-import 'package:hacker_news/utils/providers/story_provider.dart';
-import 'package:hacker_news/utils/utils.dart';
-import 'package:hacker_news/widgets/news_tile.dart';
-import 'package:provider/provider.dart';
-
-// pour verifier s'il y'a la connexion à internet
-Future<bool> hasDeviceInternet() async {
-  final connectivityResult = await Connectivity().checkConnectivity();
-  bool value = connectivityResult == ConnectivityResult.wifi ||
-      connectivityResult == ConnectivityResult.mobile;
-
-  print('value : $value');
-  return value;
-}
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hacker_news/screens/news_list.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    DatabaseHelper db = DatabaseHelper();
-    db.init();
-
-    Future<List<int>> getStories()async{
-      await db.init();
-      final hasInternet = await hasDeviceInternet();
-      if(hasInternet){
-        return await HackerNewsApi.getTopStories();
-      }
-      else{
-        return await db.getAllIds();
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hacker News'),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ChangeNotifierProvider(
-                create: (BuildContext context) {
-                  return StoryProvider();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: FutureBuilder(
-                      future: getStories(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const SpinKitDualRing(
-                            color: Colors.blueAccent,
-                            size: 50,
-                          );
-                        } else {
-                          List<int> indexes = snapshot.data!;
-                          if (isFirstDayOfMonth()) {
-                            db.monthlyCleaning(indexes);
-                          }
-                          return FutureBuilder(
-                              future: HackerNewsApi.fetchStories(indexes, db),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  return Consumer<StoryProvider>(
-                                      builder: (context, value, _) {
-                                    value.stories = snapshot.data!;
-                                    return ListView.builder(
-                                        itemCount: value.stories.length,
-                                        itemBuilder: (BuildContext context,
-                                            int position) {
-                                          return NewsTile(
-                                            story: value.stories[position],
-                                            position: position,
-                                            isFav: value
-                                                .stories[position].isFavorite,
-                                          );
-                                        });
-                                  });
-                                } else {
-                                  return const SpinKitCubeGrid(
-                                    color: Colors.blueAccent,
-                                  );
-                                }
-                              });
-                        }
-                      }),
-                ),
+      body: ListView(
+        children: [
+          const SizedBox(
+            height: 20.0,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Container(
+              width: double.infinity,
+              height: 300.0,
+              decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  image: DecorationImage(
+                    image: NetworkImage(
+                        'https://i.pinimg.com/474x/d2/3d/8c/d23d8cd0331ad0050a713124a45f2b5a.jpg'),
+                    fit: BoxFit.cover,
+                    colorFilter:
+                        ColorFilter.mode(Colors.grey, BlendMode.darken),
+                  )),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Welcome into Hacker News...',
+                      style: GoogleFonts.roboto(
+                        color: Colors.white,
+                        fontSize: 32.0,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(
+            height: 25.0,
+          ),
+          const Center(
+            child: Text(
+              'Stories',
+              style: TextStyle(
+                fontSize: 20.0,
+                color: Colors.blueAccent,
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              GestureDetector(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>const NewsList()));
+                },
+                child: Container(
+                  width: 120,
+                  height: 170,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Colors.blueAccent,
+                    image: const DecorationImage(
+                        image: NetworkImage('https://i.pinimg.com/474x/24/75/3f/24753ffd5bf3d465bbab45c803174f20.jpg'),
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(Colors.grey, BlendMode.darken)
+                    ),
+                  ),
+                  child: const Center(
+                    child: Text('All',style: TextStyle(fontSize: 27, color: Colors.white,fontStyle: FontStyle.italic),),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>const NewsList(onlyFavorite: true,)));
+                },
+                child: Container(
+                  width: 120,
+                  height: 170,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Colors.blueAccent,
+                    image: const DecorationImage(
+                        image: NetworkImage('https://i.pinimg.com/474x/80/fd/0c/80fd0c70c1522e2894f979188509ce1f.jpg'),
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(Colors.grey, BlendMode.darken)
+                    ),
+                  ),
+                  child: const Center(
+                    child: Text('Favorites',style: TextStyle(fontSize: 25, color: Colors.white,fontStyle: FontStyle.italic),),
+                  ),
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 20,),
+        ],
       ),
     );
   }

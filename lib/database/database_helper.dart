@@ -41,9 +41,6 @@ class DatabaseHelper {
   }
 
   Future<int> insertStories(Story story) async {
-    //faire un tour sur FlushBar
-    // return await db.insert(NomTable,enregistrement)
-    print('${story.id} isFavorite: ${story.isFavorite}');
     return await db.insert(tableHackerNews, story.toMap());
   }
 
@@ -84,6 +81,16 @@ class DatabaseHelper {
         columns: [
           columnId,
         ],);
+    return listFromMap(maps);
+  }
+
+  Future<List<int>> getFavIds() async {
+    List<Map<String, dynamic>> maps = await db.query(tableHackerNews,
+      columns: [
+        columnId,
+      ],
+        where: '$columnFav = 1',
+    );
     return listFromMap(maps);
   }
 

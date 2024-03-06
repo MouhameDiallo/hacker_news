@@ -1,9 +1,11 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:hacker_news/models/story.dart';
 import 'package:hacker_news/screens/story_detailed.dart';
-import 'package:hacker_news/utils/database/database_helper.dart';
-import 'package:hacker_news/utils/providers/story_provider.dart';
 import 'package:provider/provider.dart';
+
+import '../database/database_helper.dart';
+import '../providers/story_provider.dart';
 
 
 class NewsTile extends StatelessWidget {
@@ -36,13 +38,31 @@ class NewsTile extends StatelessWidget {
                     Provider.of<StoryProvider>(context, listen: false);
                 itemProvider.updateFavorites(position);
 
-                //Si la story n'est pas sauvegardee, faut sauvegarder dans la base
-                if(story.isFavorite){
-                  DatabaseHelper db = DatabaseHelper();
-                  await db.init();
-                  db.isInDatabase(story.id).then((value) => value?-1:db.insertStories(story));
+                DatabaseHelper db = DatabaseHelper();
+                db.init().then((value) {
+                  if(story.isFavorite){
+                    //Si la story n'est pas sauvegardee, faut sauvegarder dans la base
+                    db.isInDatabase(story.id).then((value) => value?-1:db.insertStories(story));
+                  }
                   db.update(story);
-                }
+                  final snackBar = SnackBar(
+                    elevation: 0,
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: Colors.transparent,
+                    content: AwesomeSnackbarContent(
+                      title: 'Cool!',
+                      message:
+                      'Favorite list updated!',
+                      contentType: ContentType.help,
+                    ),
+                  );
+
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(snackBar);
+                } );
+
+
               },
               icon: story.isFavorite? const Icon(Icons.star): const Icon(Icons.star_border),
             ),

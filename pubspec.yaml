@@ -38,6 +38,7 @@ dependencies:
   google_fonts: ^6.1.0
   intl: ^0.19.0
   connectivity_plus: ^5.0.2
+  awesome_snackbar_content: 0.1.1
 
 
   # The following adds the Cupertino Icons font to your application.
