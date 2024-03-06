@@ -21,7 +21,7 @@ class HackerNewsApi {
       for(String element in returnStringList){
         returnIntList.add(int.parse(element));
       }
-      return returnIntList.sublist(0,75);
+      return returnIntList;
     }
     on TimeoutException{
       print('Time out Exception my boy');
@@ -67,7 +67,7 @@ class HackerNewsApi {
 
         Story? story;
         if(list.contains(index)){
-          story = await db.getAllStories(index);
+          story = await db.getStoryById(index);
         }
         else{
           story = await fetchAStory(index);

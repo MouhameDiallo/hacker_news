@@ -60,7 +60,7 @@ class CommentDetailed extends StatelessWidget {
                 ? Container(
               margin: const EdgeInsets.all(24.0),
               child: const Center(
-                child: Text("Aucun commentaire",
+                child: Text("No comment",
                   style: TextStyle(
                     fontSize: 16.0,
                     color: Colors.blueGrey,

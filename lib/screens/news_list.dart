@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -69,7 +70,23 @@ class NewsList extends StatelessWidget {
                         } else {
                           List<int> indexes = snapshot.data!;
                           if (isFirstDayOfMonth()) {
-                            db.monthlyCleaning(indexes);
+                            db.monthlyCleaning(indexes).then((value){
+                              final snackBar = SnackBar(
+                                elevation: 0,
+                                behavior: SnackBarBehavior.floating,
+                                backgroundColor: Colors.transparent,
+                                content: AwesomeSnackbarContent(
+                                  title: 'Cleaning done!',
+                                  message:
+                                  'Story list updated!',
+                                  contentType: ContentType.help,
+                                ),
+                              );
+
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(snackBar);
+                            });
                           }
                           return FutureBuilder(
                               future: HackerNewsApi.fetchStories(indexes, db),

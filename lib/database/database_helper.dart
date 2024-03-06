@@ -44,7 +44,7 @@ class DatabaseHelper {
     return await db.insert(tableHackerNews, story.toMap());
   }
 
-  Future<Story?> getAllStories(int id) async {
+  Future<Story?> getStoryById(int id) async {
     // return db.query("Tablename
     List<Map<String, dynamic>> maps = await db.query(tableHackerNews,
         columns: [
@@ -102,16 +102,21 @@ class DatabaseHelper {
     return await db.delete(tableHackerNews, where: '$columnId = ?', whereArgs: [id]);
   }
 
-  void monthlyCleaning(List fetchedIndexes)async{
+  Future<int> monthlyCleaning(List fetchedIndexes)async{
+    int x =0;
     List<int> databaseIds = await getAllIds();
     for(int i in databaseIds){
       if(!fetchedIndexes.contains(i)){
-        Story? story = await getAllStories(i);
+        Story? story = await getStoryById(i);
         if(story!= null){
-          if (story.isFavorite==false) delete(i);
+          if (story.isFavorite==false) {
+            delete(i);
+            x++;
+          }
         }
       }
     }
+    return x;
   }
 
   Future<int> update(Story story) async {
