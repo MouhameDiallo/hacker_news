@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hacker_news/screens/news_list.dart';
@@ -36,13 +37,23 @@ class Home extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Welcome into Hacker News...',
-                      style: GoogleFonts.roboto(
-                        color: Colors.white,
-                        fontSize: 32.0,
-                      ),
-                    ),
+                    child: SizedBox(
+              width: 250.0,
+              child: DefaultTextStyle(
+                style: GoogleFonts.michroma(
+                  fontSize: 30.0,
+                ),
+                child: AnimatedTextKit(
+                  animatedTexts: [
+                    TypewriterAnimatedText('Mohamed Diallo said'),
+                    TypewriterAnimatedText('Be disciplined'),
+                    TypewriterAnimatedText('Be silent'),
+                    TypewriterAnimatedText('Love your mom'),
+                  ],
+                  repeatForever: true,
+                ),
+              ),
+            ),
                   ),
                 ],
               ),
@@ -67,8 +78,11 @@ class Home extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               GestureDetector(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>const NewsList()));
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NewsList()));
                 },
                 child: Container(
                   width: 120,
@@ -77,19 +91,31 @@ class Home extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10.0),
                     color: Colors.blueAccent,
                     image: const DecorationImage(
-                        image: NetworkImage('https://i.pinimg.com/474x/24/75/3f/24753ffd5bf3d465bbab45c803174f20.jpg'),
+                        image: NetworkImage(
+                            'https://i.pinimg.com/474x/24/75/3f/24753ffd5bf3d465bbab45c803174f20.jpg'),
                         fit: BoxFit.cover,
-                        colorFilter: ColorFilter.mode(Colors.grey, BlendMode.darken)
-                    ),
+                        colorFilter:
+                            ColorFilter.mode(Colors.grey, BlendMode.darken)),
                   ),
                   child: const Center(
-                    child: Text('All',style: TextStyle(fontSize: 27, color: Colors.white,fontStyle: FontStyle.italic),),
+                    child: Text(
+                      'All',
+                      style: TextStyle(
+                          fontSize: 27,
+                          color: Colors.white,
+                          fontStyle: FontStyle.italic),
+                    ),
                   ),
                 ),
               ),
               GestureDetector(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>const NewsList(onlyFavorite: true,)));
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NewsList(
+                                onlyFavorite: true,
+                              )));
                 },
                 child: Container(
                   width: 120,
@@ -98,19 +124,28 @@ class Home extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10.0),
                     color: Colors.blueAccent,
                     image: const DecorationImage(
-                        image: NetworkImage('https://i.pinimg.com/474x/80/fd/0c/80fd0c70c1522e2894f979188509ce1f.jpg'),
+                        image: NetworkImage(
+                            'https://i.pinimg.com/474x/80/fd/0c/80fd0c70c1522e2894f979188509ce1f.jpg'),
                         fit: BoxFit.cover,
-                        colorFilter: ColorFilter.mode(Colors.grey, BlendMode.darken)
-                    ),
+                        colorFilter:
+                            ColorFilter.mode(Colors.grey, BlendMode.darken)),
                   ),
                   child: const Center(
-                    child: Text('Favorites',style: TextStyle(fontSize: 25, color: Colors.white,fontStyle: FontStyle.italic),),
+                    child: Text(
+                      'Favorites',
+                      style: TextStyle(
+                          fontSize: 25,
+                          color: Colors.white,
+                          fontStyle: FontStyle.italic),
+                    ),
                   ),
                 ),
               )
             ],
           ),
-          const SizedBox(height: 20,),
+          const SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
