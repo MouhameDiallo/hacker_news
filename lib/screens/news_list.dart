@@ -15,8 +15,6 @@ Future<bool> hasDeviceInternet() async {
   final connectivityResult = await Connectivity().checkConnectivity();
   bool value = connectivityResult == ConnectivityResult.wifi ||
       connectivityResult == ConnectivityResult.mobile;
-
-  print('value : $value');
   return value;
 }
 
@@ -88,31 +86,76 @@ class NewsList extends StatelessWidget {
                                 ..showSnackBar(snackBar);
                             });
                           }
-                          return FutureBuilder(
-                              future: HackerNewsApi.fetchStories(indexes, db),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  return Consumer<StoryProvider>(
-                                      builder: (context, value, _) {
-                                        value.stories = snapshot.data!;
-                                        return ListView.builder(
-                                            itemCount: value.stories.length,
-                                            itemBuilder: (BuildContext context,
-                                                int position) {
-                                              return NewsTile(
-                                                story: value.stories[position],
-                                                position: position,
-                                                isFav: value
-                                                    .stories[position].isFavorite,
-                                              );
+                          return Column(
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    width: 10.0,
+                                  ),
+                                  const CircleAvatar(
+                                    radius: 60.0,
+                                    backgroundImage: NetworkImage(
+                                        'https://t3.ftcdn.net/jpg/06/18/64/62/240_F_618646245_OuZrVlHoeivQEFuEDX9fd5UO1xpkjlkp.jpg'),
+                                  ),
+                                  const SizedBox(
+                                    width: 30.0,
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: TextField(
+                                        onChanged: (val) {
+                                          final provider = Provider.of<StoryProvider>(context, listen: false);
+                                          provider.searching(val);
+                                        },
+                                        decoration: const InputDecoration(
+                                            hintText: 'Search...',
+                                            hintStyle: TextStyle(
+                                              color: Colors.blueGrey,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                            suffixIcon: Icon(Icons.search)),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10.0,
+                                  ),
+                                ],
+                              ),
+                              Expanded(
+                                child: FutureBuilder(
+                                    future: HackerNewsApi.fetchStories(indexes, db),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        return Consumer<StoryProvider>(
+                                            builder: (context, value, _) {
+                                              value.stories = snapshot.data!;
+                                              value.initializing(snapshot.data!);
+                                              value.subList.isNotEmpty? value.stories = value.subList:value.stories = value.initialList;
+                                              return ListView.builder(
+                                                  itemCount: value.stories.length,
+                                                  itemBuilder: (BuildContext context,
+                                                      int position) {
+                                                    return NewsTile(
+                                                      story: value.stories[position],
+                                                      position: position,
+                                                      isFav: value
+                                                          .stories[position].isFavorite,
+                                                    );
+                                                  });
                                             });
-                                      });
-                                } else {
-                                  return const SpinKitCubeGrid(
-                                    color: Colors.blueAccent,
-                                  );
-                                }
-                              });
+                                      } else {
+                                        return const SpinKitCubeGrid(
+                                          color: Colors.blueAccent,
+                                        );
+                                      }
+                                    }),
+                              ),
+                            ],
+                          );
                         }
                       }),
                 ),
