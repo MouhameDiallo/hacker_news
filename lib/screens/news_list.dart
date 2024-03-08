@@ -20,23 +20,23 @@ Future<bool> hasDeviceInternet() async {
 
 class NewsList extends StatelessWidget {
   final bool onlyFavorite;
-  const NewsList({super.key, this.onlyFavorite=false});
+  const NewsList({super.key, this.onlyFavorite = false});
 
   @override
   Widget build(BuildContext context) {
     DatabaseHelper db = DatabaseHelper();
+    bool isFirstRendering = true;
     db.init();
 
-    Future<List<int>> getStories()async{
+    Future<List<int>> getStories() async {
       await db.init();
       final hasInternet = await hasDeviceInternet();
-      if(onlyFavorite){
+      if (onlyFavorite) {
         return await db.getFavIds();
       }
-      if(hasInternet){
+      if (hasInternet) {
         return await HackerNewsApi.getTopStories();
-      }
-      else{
+      } else {
         return await db.getAllIds();
       }
     }
@@ -68,15 +68,14 @@ class NewsList extends StatelessWidget {
                         } else {
                           List<int> indexes = snapshot.data!;
                           if (isFirstDayOfMonth()) {
-                            db.monthlyCleaning(indexes).then((value){
+                            db.monthlyCleaning(indexes).then((value) {
                               final snackBar = SnackBar(
                                 elevation: 0,
                                 behavior: SnackBarBehavior.floating,
                                 backgroundColor: Colors.transparent,
                                 content: AwesomeSnackbarContent(
                                   title: 'Cleaning done!',
-                                  message:
-                                  'Story list updated!',
+                                  message: 'Story list updated!',
                                   contentType: ContentType.help,
                                 ),
                               );
@@ -95,9 +94,9 @@ class NewsList extends StatelessWidget {
                                     width: 10.0,
                                   ),
                                   const CircleAvatar(
-                                    radius: 60.0,
+                                    radius: 50.0,
                                     backgroundImage: NetworkImage(
-                                        'https://t3.ftcdn.net/jpg/06/18/64/62/240_F_618646245_OuZrVlHoeivQEFuEDX9fd5UO1xpkjlkp.jpg'),
+                                        'https://i.pinimg.com/474x/4c/42/21/4c42218fdbbd6180d889982e1bb0c442.jpg'),
                                   ),
                                   const SizedBox(
                                     width: 30.0,
@@ -107,7 +106,10 @@ class NewsList extends StatelessWidget {
                                       padding: const EdgeInsets.all(10.0),
                                       child: TextField(
                                         onChanged: (val) {
-                                          final provider = Provider.of<StoryProvider>(context, listen: false);
+                                          final provider =
+                                              Provider.of<StoryProvider>(
+                                                  context,
+                                                  listen: false);
                                           provider.searching(val);
                                         },
                                         decoration: const InputDecoration(
@@ -125,28 +127,34 @@ class NewsList extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 18.0,),
                               Expanded(
                                 child: FutureBuilder(
-                                    future: HackerNewsApi.fetchStories(indexes, db),
+                                    future:
+                                        HackerNewsApi.fetchStories(indexes, db),
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
                                         return Consumer<StoryProvider>(
                                             builder: (context, value, _) {
-                                              value.stories = snapshot.data!;
-                                              value.initializing(snapshot.data!);
-                                              value.subList.isNotEmpty? value.stories = value.subList:value.stories = value.initialList;
-                                              return ListView.builder(
-                                                  itemCount: value.stories.length,
-                                                  itemBuilder: (BuildContext context,
+                                          value.stories = snapshot.data!;
+                                          if(value.subList.isEmpty && isFirstRendering){
+                                            value.subList = value.stories;
+                                            isFirstRendering = false;
+                                          }
+                                          return ListView.builder(
+                                              itemCount: value.subList.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
                                                       int position) {
-                                                    return NewsTile(
-                                                      story: value.stories[position],
-                                                      position: position,
-                                                      isFav: value
-                                                          .stories[position].isFavorite,
-                                                    );
-                                                  });
-                                            });
+                                                return NewsTile(
+                                                  story:
+                                                      value.subList[position],
+                                                  position: position,
+                                                  isFav: value.subList[position]
+                                                      .isFavorite,
+                                                );
+                                              });
+                                        });
                                       } else {
                                         return const SpinKitCubeGrid(
                                           color: Colors.blueAccent,
