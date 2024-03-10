@@ -5,6 +5,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hacker_news/models/comment.dart';
 import 'package:hacker_news/models/story.dart';
 import 'package:hacker_news/networking/hacker_news_api.dart';
+import 'package:hacker_news/screens/webview.dart';
 import 'package:hacker_news/widgets/single_comment_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -72,10 +73,19 @@ class StoryDetailed extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text('${story.score}'),
-                        const Icon(Icons.star),
+                        const SizedBox(
+                          width: 5.0,
+                        ),
+                        const Icon(Icons.thumb_up_alt_outlined,size: 18.0,),
                         const SizedBox(
                           width: 10.0,
                         ),
+                        TextButton(onPressed: (){
+                          if(story.url!=null){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=> WebViewPage(url:story.url!)));
+                          }
+
+                        }, child: const Text("Show"),)
                       ],
                     ),
                   ],
@@ -85,7 +95,7 @@ class StoryDetailed extends StatelessWidget {
                 height: 20.0,
               ),
               const Text(
-                'Commentaires',
+                'Comments',
                 style: TextStyle(
                   fontSize: 20.0,
                   color: Colors.blueAccent,
